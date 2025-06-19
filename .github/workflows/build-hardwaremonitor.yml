@@ -26,15 +26,15 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1.1
 
-      # 第三步：执行编译 (已使用日志确认的正确路径)
-      - name: Build the HardwareMonitor project
-        run: msbuild Plugins/HardwareMonitor/HardwareMonitor.vcxproj /p:Configuration=Release /p:Platform=x64
+      # 第三步：编译整个解决方案 (最稳妥的方法)
+      - name: Build the entire solution
+        run: msbuild TrafficMonitorPlugins.sln /p:Configuration=Release /p:Platform=x64
 
-      # 第四步：上传编译产物 (已使用日志确认的正确路径)
+      # 第四步：上传编译产物 (路径保持不变)
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           # 设置下载包的名称
           name: HardwareMonitor-Plugin
-          # 根据正确的项目路径，输出的dll文件也在这里
+          # 编译整个解决方案后，dll的输出路径依然是由项目配置决定的，所以这个路径是正确的
           path: Plugins/HardwareMonitor/x64/Release/HardwareMonitor.dll
