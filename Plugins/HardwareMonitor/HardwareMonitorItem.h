@@ -2,6 +2,7 @@
 
 // ==================== 新增此行，解决所有问题的关键 ====================
 #include "../../include/PluginInterface.h"
+#include <string> // 包含 <string> 以使用 std::wstring
 // ====================================================================
 
 class CHardwareMonitorItem :
