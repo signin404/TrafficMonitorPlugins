@@ -1,47 +1,75 @@
-﻿// HardwareMonitor.h
-
 #pragma once
-#include <string>
-#include "UpdateVisitor.h"
-#include <map>
-#include "PluginInterface.h"
-#include "HardwareInfoForm.h"
-#include "SettingsForm.h"
+#include "../../include/ITMPlugin.h"
 #include "HardwareMonitorItem.h"
 #include <vector>
-#include "CommonData.h"
+#include <map>
+#include <string>
 
-using namespace System;
-using namespace System::Collections::Generic;
+// LibreHardwareMonitorLib.dll
+#using "LibreHardwareMonitorLib.dll"
 using namespace LibreHardwareMonitor::Hardware;
 
 namespace HardwareMonitor
 {
-    public class CHardwareMonitor : public ITMPlugin
-	{
+    struct ItemInfo
+    {
+        std::wstring identifyer;
+        int decimal_places{ 1 };
+        bool specify_value_width{ true };
+        int value_width{ 3 };
+        std::wstring unit;
+        bool show_unit{ true };
+    };
+
+    class CSettings
+    {
+    public:
+        std::vector<ItemInfo> items_info;
+        bool hardware_info_auto_refresh{};
+        bool show_mouse_tooltip{ true };
+
+        const ItemInfo& GetItemInfo(const std::wstring& identifyer) const
+        {
+            for (const auto& item : items_info)
+            {
+                if (item.identifyer == identifyer)
+                    return item;
+            }
+            static ItemInfo default_item_info;
+            return default_item_info;
+        }
+    };
+
+    class CHardwareMonitor :
+        public ITMPlugin
+    {
     private:
         CHardwareMonitor();
-        virtual ~CHardwareMonitor();
+        static CHardwareMonitor* m_pIns;
+        ITrafficMonitor* m_pMainApp{};
+        std::vector<CHardwareMonitorItem> m_items;
+        std::map<std::wstring, std::wstring> m_item_names;
+        std::wstring m_config_path;
+        CSettings m_settings;
+        int m_dpi{};
+        std::map<const wchar_t*, std::wstring> string_table;
+        struct TM_SETTINGS
+        {
+            bool main_wnd_sperate_with_space{};
+            bool taskbar_sperate_with_space{};
+            bool is_taskbar{};
+        } m_tm_settings;
 
     public:
+        ~CHardwareMonitor();
         static CHardwareMonitor* GetInstance();
-
         const std::wstring& StringRes(const wchar_t* name);
-
-        //添加一个监控项目。
-        //如果监控项目已存在，返回false，否则返回true
         bool AddDisplayItem(ISensor^ sensor);
-
-        //判断一个监控项目是否已存在
         bool IsDisplayItemExist(const std::wstring& identifyer);
-
-        //移除一个监控项目
-        //成功返回true，否则返回false
         bool RemoveDisplayItem(int index);
-
         std::wstring GetItemName(const std::wstring& identifier);
-
         const std::wstring& GetConfigPath() const;
+        const CSettings& GetSettings() const { return m_settings; }
 
         void LoadConfig(const std::wstring& config_dir);
         void SaveConfig();
@@ -50,91 +78,20 @@ namespace HardwareMonitor
 
         ITrafficMonitor* GetMainApp() const;
 
-        OptionSettings m_settings;
-        TMSettings m_tm_settings;
-
         static void ShowErrorMessage(System::Exception^ e);
 
-    private:
-        static CHardwareMonitor* m_pIns;
-        std::vector<CHardwareMonitorItem> m_items;
-        std::wstring m_config_path;
-        std::map<std::wstring, std::wstring> m_item_names;  //保存每个Sensor的identifier和名称的map
-
         // 通过 ITMPlugin 继承
-        IPluginItem* GetItem(int index) override;
-        void DataRequired() override;
-        const wchar_t* GetInfo(PluginInfoIndex index) override;
+        virtual int GetItemCount() const override { return static_cast<int>(m_items.size()); }
+        virtual IPluginItem* GetItem(int index) override;
+        virtual void DataRequired() override;
+        virtual const wchar_t* GetInfo(PluginInfoIndex index) override;
         virtual const wchar_t* GetTooltipInfo() override;
         virtual OptionReturn ShowOptionsDialog(void* hParent) override;
         virtual void OnExtenedInfo(ExtendedInfoIndex index, const wchar_t* data) override;
         virtual void* GetPluginIcon() override;
-
         virtual int GetCommandCount() override;
         virtual const wchar_t* GetCommandName(int command_index) override;
         virtual void OnPluginCommand(int command_index, void* hWnd, void* para) override;
         virtual void OnInitialize(ITrafficMonitor* pApp) override;
-
-    private:
-        std::map<const wchar_t*, std::wstring> string_table;
-        int m_dpi{ 96 };
-        ITrafficMonitor* m_pMainApp{};
-    };
-
-    public ref class MonitorGlobal
-    {
-    public:
-        MonitorGlobal();
-        ~MonitorGlobal();
-        static MonitorGlobal^ Instance()
-        {
-            if (m_instance == nullptr)
-            {
-                m_instance = gcnew MonitorGlobal();
-            }
-            return m_instance;
-        }
-
-        void Init();
-        void UnInit();
-
-        String^ GetString(String^ name);
-        std::wstring GetStdWString(String^ name);
-        Icon^ GetAppIcon();
-        Icon^ GetIcon(String^ name);
-        Resources::ResourceManager^ GetResourceManager();
-
-        void ShowHardwareInfoDialog();
-
-    private:
-        //从resx资源文件载入一个图标，并指定图标大小
-        Icon^ LoadIcon(String^ name, int icon_size);
-
-    public:
-        Computer^ computer;
-        UpdateVisitor^ updateVisitor{};
-
-        HardwareInfoForm^ monitor_form{};
-        SettingsForm^ setttings_form{};
-        SortedSet<String^>^ treeCollapseNodes{ gcnew SortedSet<String^>() };                    //保存“硬件信息”对话框树控件中折叠的节点
-        Dictionary<String^, ISensor^>^ sensorMap{ gcnew Dictionary<String^, ISensor^>() };      //保存传感器的identifyer和传感器对象的映射
-
-    private:
-        Resources::ResourceManager^ resourceManager{};
-        //保存所有图标
-        Dictionary<String^, Icon^>^ iconsMap{};
-
-    private:
-        static MonitorGlobal^ m_instance{};
     };
 }
-
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-    __declspec(dllexport) ITMPlugin* TMPluginGetInstance();
-
-#ifdef __cplusplus
-}
-#endif
