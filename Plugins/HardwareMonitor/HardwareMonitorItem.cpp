@@ -17,11 +17,15 @@ namespace HardwareMonitor
     CHardwareMonitorItem::CHardwareMonitorItem(const std::wstring& identifyer, const std::wstring& item_name, const std::wstring& lable_text, bool is_graph, GraphType graph_mode)
         : m_identifyer(identifyer), m_item_name(item_name), m_lable_text(lable_text)
     {
-        // 在这里设置图形相关的属性
+        // 直接访问和设置从 IPluginItem 继承来的成员
         show_graph = is_graph;
         graph_type = graph_mode;
     }
     // ==========================================================
+
+    CHardwareMonitorItem::~CHardwareMonitorItem()
+    {
+    }
 
     const wchar_t* CHardwareMonitorItem::GetItemName() const
     {
