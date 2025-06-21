@@ -1,4 +1,6 @@
-﻿// 这是主 DLL 文件。
+// HardwareMonitor.cpp
+
+// 这是主 DLL 文件。
 
 #include "stdafx.h"
 
@@ -172,57 +174,52 @@ namespace HardwareMonitor
             List<ISensor^>^ default_sensors = gcnew List<ISensor^>();
             HardwareMonitorHelper::GetDefaultMonitorItem(default_sensors);
             for each (auto sensor in default_sensors)
-    if (ini.IsEmpty())
-    {
-        List<ISensor^>^ default_sensors = gcnew List<ISensor^>();
-        HardwareMonitorHelper::GetDefaultMonitorItem(default_sensors);
-        for each (auto sensor in default_sensors)
-        {
-            std::wstring identifyer = Common::StringToStdWstring(HardwareMonitorHelper::GetSensorIdentifyer(sensor));
-            std::wstring item_name = Common::StringToStdWstring(HardwareMonitorHelper::GetSensorDisplayName(sensor));
-            std::wstring lable_text = Common::StringToStdWstring(Common::GetTranslatedString(sensor->Name));
-            m_item_names[identifyer] = item_name;
-            m_items.emplace_back(identifyer, item_name, lable_text);
-            ItemInfo item_info;
-            item_info.identifyer = identifyer;
-            item_info.unit = Common::StringToStdWstring(HardwareMonitorHelper::GetSensorTypeDefaultUnit(sensor->SensorType));
-            m_settings.items_info.push_back(item_info);
-        }
-
-        // ============================== 新增逻辑开始 ==============================
-        List<ISensor^>^ core_sensors = gcnew List<ISensor^>();
-        for each (IHardware^ hardware in MonitorGlobal::Instance()->computer->Hardware)
-        {
-            if (hardware->HardwareType == HardwareType::Cpu)
             {
-                for each (ISensor^ sensor in hardware->Sensors)
-                {
-                    if (sensor->SensorType == SensorType::Load && sensor->Name->Contains("CPU Core #"))
-                    {
-                        core_sensors->Add(sensor);
-                    }
-                }
-                break; 
+                std::wstring identifyer = Common::StringToStdWstring(HardwareMonitorHelper::GetSensorIdentifyer(sensor));
+                std::wstring item_name = Common::StringToStdWstring(HardwareMonitorHelper::GetSensorDisplayName(sensor));
+                std::wstring lable_text = Common::StringToStdWstring(Common::GetTranslatedString(sensor->Name));
+                m_item_names[identifyer] = item_name;
+                m_items.emplace_back(identifyer, item_name, lable_text);
+                ItemInfo item_info;
+                item_info.identifyer = identifyer;
+                item_info.unit = Common::StringToStdWstring(HardwareMonitorHelper::GetSensorTypeDefaultUnit(sensor->SensorType));
+                m_settings.items_info.push_back(item_info);
             }
-        }
 
-        for each (auto sensor in core_sensors)
-        {
-            std::wstring identifyer = Common::StringToStdWstring(HardwareMonitorHelper::GetSensorIdentifyer(sensor));
-            std::wstring item_name = Common::StringToStdWstring(HardwareMonitorHelper::GetSensorDisplayName(sensor));
-            std::wstring lable_text = Common::StringToStdWstring(Common::GetTranslatedString(sensor->Name));
-            m_item_names[identifyer] = item_name;
-            
-            // 使用我们新的构造函数来创建项目，直接传入图形参数
-            m_items.emplace_back(identifyer, item_name, lable_text, true, IPluginItem::GraphType::Bar);
+            // ============================== 新增逻辑开始 ==============================
+            List<ISensor^>^ core_sensors = gcnew List<ISensor^>();
+            for each (IHardware^ hardware in MonitorGlobal::Instance()->computer->Hardware)
+            {
+                if (hardware->HardwareType == HardwareType::Cpu)
+                {
+                    for each (ISensor^ sensor in hardware->Sensors)
+                    {
+                        if (sensor->SensorType == SensorType::Load && sensor->Name->Contains("CPU Core #"))
+                        {
+                            core_sensors->Add(sensor);
+                        }
+                    }
+                    break; 
+                }
+            }
 
-            ItemInfo item_info;
-            item_info.identifyer = identifyer;
-            item_info.unit = Common::StringToStdWstring(HardwareMonitorHelper::GetSensorTypeDefaultUnit(sensor->SensorType));
-            m_settings.items_info.push_back(item_info);
+            for each (auto sensor in core_sensors)
+            {
+                std::wstring identifyer = Common::StringToStdWstring(HardwareMonitorHelper::GetSensorIdentifyer(sensor));
+                std::wstring item_name = Common::StringToStdWstring(HardwareMonitorHelper::GetSensorDisplayName(sensor));
+                std::wstring lable_text = Common::StringToStdWstring(Common::GetTranslatedString(sensor->Name));
+                m_item_names[identifyer] = item_name;
+                
+                // 使用我们新的构造函数来创建项目，直接传入图形参数
+                m_items.emplace_back(identifyer, item_name, lable_text, true, IPluginItem::GraphType::Bar);
+
+                ItemInfo item_info;
+                item_info.identifyer = identifyer;
+                item_info.unit = Common::StringToStdWstring(HardwareMonitorHelper::GetSensorTypeDefaultUnit(sensor->SensorType));
+                m_settings.items_info.push_back(item_info);
+            }
+            // =============================== 新增逻辑结束 ===============================
         }
-        // =============================== 新增逻辑结束 ===============================
-    }
 
         //载入树控件的展开折叠状态
         std::vector<std::wstring> collapse_nodes;
