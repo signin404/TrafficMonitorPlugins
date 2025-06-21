@@ -3,7 +3,6 @@
 #include "stdafx.h"
 
 #include "HardwareMonitor.h"
-#include <vector>
 #include "HardwareMonitorHelper.h"
 #include "../utilities/IniHelper.h"
 #include "SettingsForm.h"
