@@ -13,6 +13,16 @@ namespace HardwareMonitor
     {
     }
 
+// ==================== 新增构造函数的实现 ====================
+    CHardwareMonitorItem::CHardwareMonitorItem(const std::wstring& _identifier, const std::wstring& _item_name, const std::wstring& _label_text, bool is_graph, GraphType graph_mode)
+        : m_identifyer(identifyer), m_item_name(item_name), m_lable_text(lable_text)
+    {
+        // 在这里设置图形相关的属性
+        show_graph = is_graph;
+        graph_type = graph_mode;
+    }
+    // ==========================================================
+
     const wchar_t* CHardwareMonitorItem::GetItemName() const
     {
         return item_name.c_str();
