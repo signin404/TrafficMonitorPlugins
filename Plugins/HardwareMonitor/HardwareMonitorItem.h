@@ -15,7 +15,11 @@ namespace HardwareMonitor
         CHardwareMonitorItem(const std::wstring& identifyer, const std::wstring& item_name, const std::wstring& lable_text, bool is_graph, GraphType graph_mode);
 
         ~CHardwareMonitorItem();
-
+    virtual const wchar_t* GetItemName() const override;
+    virtual const wchar_t* GetItemLableText() const override;
+    virtual const wchar_t* GetItemValueText() const override;
+    virtual const wchar_t* GetItemValueTip() const override;
+    virtual int GetItemWidth() const override;
         // 通过 IPluginItem 继承
         const wchar_t* GetItemName() const override;
         const wchar_t* GetItemId() const override;
@@ -36,5 +40,9 @@ namespace HardwareMonitor
         std::wstring label_text;
         int sensor_type{};
         float item_value_num{};
+    std::wstring m_identifyer;
+    std::wstring m_item_name;
+    std::wstring m_lable_text;
+    float m_value{};
     };
 }
