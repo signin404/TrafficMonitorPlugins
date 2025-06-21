@@ -2,6 +2,9 @@
 #include "PluginInterface.h"
 #include <string>
 #include "CommonData.h"
+// ==================== 新增此行，解决所有问题的关键 ====================
+#include "../../include/PluginInterface.h"
+// ====================================================================
 
 namespace HardwareMonitor
 {
@@ -10,6 +13,8 @@ namespace HardwareMonitor
     public:
         CHardwareMonitorItem(const std::wstring& _identifier, const std::wstring& _item_name, const std::wstring& _label_text);
         CHardwareMonitorItem(const std::wstring& identifyer, const std::wstring& item_name, const std::wstring& lable_text, bool is_graph, GraphType graph_mode);
+
+        ~CHardwareMonitorItem();
 
         // 通过 IPluginItem 继承
         const wchar_t* GetItemName() const override;
