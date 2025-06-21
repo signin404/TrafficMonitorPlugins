@@ -1,4 +1,4 @@
-﻿// 这是主 DLL 文件。
+// 这是主 DLL 文件。
 
 #include "stdafx.h"
 
@@ -184,6 +184,51 @@ namespace HardwareMonitor
                 m_settings.items_info.push_back(item_info);
             }
         }
+
+        // ============================== 新增逻辑开始 ==============================
+        // 在添加完默认项目后，继续查找并添加所有CPU核心的使用率
+        List<ISensor^>^ core_sensors = gcnew List<ISensor^>();
+        // 遍历所有硬件
+        for each (IHardware^ hardware in MonitorGlobal::Instance()->computer->Hardware)
+        {
+            // 找到CPU
+            if (hardware->HardwareType == HardwareType::Cpu)
+            {
+                // 遍历CPU下的所有传感器
+                for each (ISensor^ sensor in hardware->Sensors)
+                {
+                    // 如果传感器是“负载”（Load）类型，并且名字包含 "CPU Core #"
+                    if (sensor->SensorType == SensorType::Load && sensor->Name->Contains("CPU Core #"))
+                    {
+                        core_sensors->Add(sensor);
+                    }
+                }
+                break; // 找到CPU后就跳出硬件循环
+            }
+        }
+
+        // 为找到的所有CPU核心创建监控项
+        for each (auto sensor in core_sensors)
+        {
+            std::wstring identifyer = Common::StringToStdWstring(HardwareMonitorHelper::GetSensorIdentifyer(sensor));
+            std::wstring item_name = Common::StringToStdWstring(HardwareMonitorHelper::GetSensorDisplayName(sensor));
+            std::wstring lable_text = Common::StringToStdWstring(Common::GetTranslatedString(sensor->Name));
+            m_item_names[identifyer] = item_name;
+            
+            // 创建插件项目，并设置为条形图
+            m_items.emplace_back(identifyer, item_name, lable_text);
+            auto& new_item = m_items.back();
+            new_item.show_graph = true;
+            new_item.graph_type = IPluginItem::GraphType::Bar;
+
+            // 创建对应的配置信息，以便保存到INI文件
+            ItemInfo item_info;
+            item_info.identifyer = identifyer;
+            item_info.unit = Common::StringToStdWstring(HardwareMonitorHelper::GetSensorTypeDefaultUnit(sensor->SensorType));
+            m_settings.items_info.push_back(item_info);
+        }
+        // =============================== 新增逻辑结束 ===============================
+    }
 
         //载入树控件的展开折叠状态
         std::vector<std::wstring> collapse_nodes;
