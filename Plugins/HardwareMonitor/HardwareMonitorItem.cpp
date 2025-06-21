@@ -12,15 +12,14 @@ namespace HardwareMonitor
     {
     }
 
-    // ==================== 新增构造函数的实现 ====================
+    // 新增构造函数的实现
     CHardwareMonitorItem::CHardwareMonitorItem(const std::wstring& identifyer, const std::wstring& item_name, const std::wstring& lable_text, bool is_graph, GraphType graph_mode)
         : m_identifyer(identifyer), m_item_name(item_name), m_lable_text(lable_text)
     {
-        // 在此设置从基类继承的成员
+        // 直接访问和设置从 IPluginItem 继承来的成员
         show_graph = is_graph;
         graph_type = graph_mode;
     }
-    // ==========================================================
 
     CHardwareMonitorItem::~CHardwareMonitorItem()
     {
@@ -81,9 +80,9 @@ namespace HardwareMonitor
     void CHardwareMonitorItem::UpdateValue()
     {
         ISensor^ sensor = HardwareMonitorHelper::FindSensorByIdentifyer(gcnew String(m_identifyer.c_str()));
-        if (sensor != nullptr && sensor->Value->HasValue)
+        if (sensor != nullptr && sensor->Value.HasValue)
         {
-            m_value = sensor->Value->Value;
+            m_value = sensor->Value.Value;
         }
     }
 }
