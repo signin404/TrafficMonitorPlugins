@@ -121,93 +121,88 @@ namespace HardwareMonitor
         return m_config_path;
     }
 
-    void CHardwareMonitor::LoadConfig(const std::wstring& config_dir)
+// HardwareMonitor.cpp
+
+void CHardwareMonitor::LoadConfig(const std::wstring& config_dir)
+{
+    m_config_path = config_dir + L"HardwareMonitor.ini";
+    utilities::CIniHelper ini(m_config_path);
+
+    //载入要监控的硬件
+    Computer^ computer = MonitorGlobal::Instance()->computer;
+    computer->IsCpuEnabled = ini.GetBool(L"hardware", L"IsCpuEnabled", true);                   //CPU
+    computer->IsGpuEnabled = ini.GetBool(L"hardware", L"IsGpuEnabled", true);                   //显卡
+    computer->IsMotherboardEnabled = ini.GetBool(L"hardware", L"IsMotherboardEnabled", true);   //主板
+    computer->IsStorageEnabled = ini.GetBool(L"hardware", L"IsStorageEnabled", true);           //硬盘
+    computer->IsBatteryEnabled = ini.GetBool(L"hardware", L"IsBatteryEnabled", false);          //电池
+    computer->IsNetworkEnabled = ini.GetBool(L"hardware", L"IsNetworkEnabled", false);          //网络
+    computer->IsMemoryEnabled = ini.GetBool(L"hardware", L"IsMemoryEnabled", false);            //内存
+    computer->IsControllerEnabled = ini.GetBool(L"hardware", L"IsControllerEnabled", false);    //风扇控制器
+    computer->IsPsuEnabled = ini.GetBool(L"hardware", L"IsPsuEnabled", false);                  //电源
+
+    MonitorGlobal::Instance()->computer->Accept(MonitorGlobal::Instance()->updateVisitor);
+
+    //载入要监控的项目
+    int item_count = ini.GetInt(L"config", L"item_count");
+    //添加监控的项目
+    for (int i = 0; i < item_count; i++)
     {
-        m_config_path = config_dir + L"HardwareMonitor.ini";
-        utilities::CIniHelper ini(m_config_path);
-
-        //载入要监控的硬件
-        Computer^ computer = MonitorGlobal::Instance()->computer;
-        computer->IsCpuEnabled = ini.GetBool(L"hardware", L"IsCpuEnabled", true);                   //CPU
-        computer->IsGpuEnabled = ini.GetBool(L"hardware", L"IsGpuEnabled", true);                   //显卡
-        computer->IsMotherboardEnabled = ini.GetBool(L"hardware", L"IsMotherboardEnabled", true);   //主板
-        computer->IsStorageEnabled = ini.GetBool(L"hardware", L"IsStorageEnabled", true);           //硬盘
-        computer->IsBatteryEnabled = ini.GetBool(L"hardware", L"IsBatteryEnabled", false);          //电池
-        computer->IsNetworkEnabled = ini.GetBool(L"hardware", L"IsNetworkEnabled", false);          //网络
-        computer->IsMemoryEnabled = ini.GetBool(L"hardware", L"IsMemoryEnabled", false);            //内存
-        computer->IsControllerEnabled = ini.GetBool(L"hardware", L"IsControllerEnabled", false);    //风扇控制器
-        computer->IsPsuEnabled = ini.GetBool(L"hardware", L"IsPsuEnabled", false);                  //电源
-
-        MonitorGlobal::Instance()->computer->Accept(MonitorGlobal::Instance()->updateVisitor);
-
-        //载入要监控的项目
-        int item_count = ini.GetInt(L"config", L"item_count");
-        //添加监控的项目
-        for (int i = 0; i < item_count; i++)
+        std::wstring app_name = L"item" + std::to_wstring(i);
+        ItemInfo item_info;
+        item_info.identifyer = ini.GetString(app_name.c_str(), L"identifier");
+        item_info.decimal_places = ini.GetInt(app_name.c_str(), L"decimal_places", 1);
+        item_info.specify_value_width = ini.GetBool(app_name.c_str(), L"specify_value_width", true);
+        item_info.value_width = ini.GetInt(app_name.c_str(), L"value_width", 3);
+        item_info.unit = ini.GetString(app_name.c_str(), L"unit");
+        item_info.show_unit = ini.GetBool(app_name.c_str(), L"show_unit", true);
+        m_settings.items_info.push_back(item_info);
+        ISensor^ sensor = HardwareMonitorHelper::FindSensorByIdentifyer(gcnew String(item_info.identifyer.c_str()));
+        if (sensor != nullptr)
         {
-            std::wstring app_name = L"item" + std::to_wstring(i);
-            ItemInfo item_info;
-            item_info.identifyer = ini.GetString(app_name.c_str(), L"identifier");
-            item_info.decimal_places = ini.GetInt(app_name.c_str(), L"decimal_places", 1);
-            item_info.specify_value_width = ini.GetBool(app_name.c_str(), L"specify_value_width", true);
-            item_info.value_width = ini.GetInt(app_name.c_str(), L"value_width", 3);
-            item_info.unit = ini.GetString(app_name.c_str(), L"unit");
-            item_info.show_unit = ini.GetBool(app_name.c_str(), L"show_unit", true);
-            m_settings.items_info.push_back(item_info);
-            ISensor^ sensor = HardwareMonitorHelper::FindSensorByIdentifyer(gcnew String(item_info.identifyer.c_str()));
-            if (sensor != nullptr)
-            {
-                std::wstring item_name = Common::StringToStdWstring(HardwareMonitorHelper::GetSensorDisplayName(sensor));
-                std::wstring lable_text = Common::StringToStdWstring(Common::GetTranslatedString(sensor->Name));
-                m_item_names[item_info.identifyer] = item_name;
-                m_items.emplace_back(item_info.identifyer, item_name, lable_text);
-            }
+            std::wstring item_name = Common::StringToStdWstring(HardwareMonitorHelper::GetSensorDisplayName(sensor));
+            std::wstring lable_text = Common::StringToStdWstring(Common::GetTranslatedString(sensor->Name));
+            m_item_names[item_info.identifyer] = item_name;
+            m_items.emplace_back(item_info.identifyer, item_name, lable_text);
         }
-        m_settings.hardware_info_auto_refresh = ini.GetBool(L"config", L"hardware_info_auto_refresh");
-        m_settings.show_mouse_tooltip = ini.GetBool(L"config", L"show_mouse_tooltip", true);
+    }
+    m_settings.hardware_info_auto_refresh = ini.GetBool(L"config", L"hardware_info_auto_refresh");
+    m_settings.show_mouse_tooltip = ini.GetBool(L"config", L"show_mouse_tooltip", true);
 
-        //如果配置文件为空，则认为是首次使用硬件监控插件，添加默认的监控项
-        if (ini.IsEmpty())
+    //如果配置文件为空，则认为是首次使用硬件监控插件，添加默认的监控项
+    if (ini.IsEmpty())
+    {
+        List<ISensor^>^ default_sensors = gcnew List<ISensor^>();
+        HardwareMonitorHelper::GetDefaultMonitorItem(default_sensors);
+        for each (auto sensor in default_sensors)
         {
-            List<ISensor^>^ default_sensors = gcnew List<ISensor^>();
-            HardwareMonitorHelper::GetDefaultMonitorItem(default_sensors);
-            for each (auto sensor in default_sensors)
-            {
-                std::wstring identifyer = Common::StringToStdWstring(HardwareMonitorHelper::GetSensorIdentifyer(sensor));
-                std::wstring item_name = Common::StringToStdWstring(HardwareMonitorHelper::GetSensorDisplayName(sensor));
-                std::wstring lable_text = Common::StringToStdWstring(Common::GetTranslatedString(sensor->Name));
-                m_item_names[identifyer] = item_name;
-                m_items.emplace_back(identifyer, item_name, lable_text);
-                ItemInfo item_info;
-                item_info.identifyer = identifyer;
-                item_info.unit = Common::StringToStdWstring(HardwareMonitorHelper::GetSensorTypeDefaultUnit(sensor->SensorType));
-                m_settings.items_info.push_back(item_info);
-            }
+            std::wstring identifyer = Common::StringToStdWstring(HardwareMonitorHelper::GetSensorIdentifyer(sensor));
+            std::wstring item_name = Common::StringToStdWstring(HardwareMonitorHelper::GetSensorDisplayName(sensor));
+            std::wstring lable_text = Common::StringToStdWstring(Common::GetTranslatedString(sensor->Name));
+            m_item_names[identifyer] = item_name;
+            m_items.emplace_back(identifyer, item_name, lable_text);
+            ItemInfo item_info;
+            item_info.identifyer = identifyer;
+            item_info.unit = Common::StringToStdWstring(HardwareMonitorHelper::GetSensorTypeDefaultUnit(sensor->SensorType));
+            m_settings.items_info.push_back(item_info);
         }
 
         // ============================== 新增逻辑开始 ==============================
-        // 在添加完默认项目后，继续查找并添加所有CPU核心的使用率
         List<ISensor^>^ core_sensors = gcnew List<ISensor^>();
-        // 遍历所有硬件
         for each (IHardware^ hardware in MonitorGlobal::Instance()->computer->Hardware)
         {
-            // 找到CPU
             if (hardware->HardwareType == HardwareType::Cpu)
             {
-                // 遍历CPU下的所有传感器
                 for each (ISensor^ sensor in hardware->Sensors)
                 {
-                    // 如果传感器是“负载”（Load）类型，并且名字包含 "CPU Core #"
                     if (sensor->SensorType == SensorType::Load && sensor->Name->Contains("CPU Core #"))
                     {
                         core_sensors->Add(sensor);
                     }
                 }
-                break; // 找到CPU后就跳出硬件循环
+                break; 
             }
         }
 
-        // 为找到的所有CPU核心创建监控项
         for each (auto sensor in core_sensors)
         {
             std::wstring identifyer = Common::StringToStdWstring(HardwareMonitorHelper::GetSensorIdentifyer(sensor));
@@ -215,13 +210,9 @@ namespace HardwareMonitor
             std::wstring lable_text = Common::StringToStdWstring(Common::GetTranslatedString(sensor->Name));
             m_item_names[identifyer] = item_name;
             
-            // 创建插件项目，并设置为条形图
-            m_items.emplace_back(identifyer, item_name, lable_text);
-            auto& new_item = m_items.back();
-            new_item.show_graph = true;
-            new_item.graph_type = IPluginItem::GraphType::Bar;
+            // 使用我们新的构造函数来创建项目，直接传入图形参数
+            m_items.emplace_back(identifyer, item_name, lable_text, true, IPluginItem::GraphType::Bar);
 
-            // 创建对应的配置信息，以便保存到INI文件
             ItemInfo item_info;
             item_info.identifyer = identifyer;
             item_info.unit = Common::StringToStdWstring(HardwareMonitorHelper::GetSensorTypeDefaultUnit(sensor->SensorType));
@@ -230,12 +221,12 @@ namespace HardwareMonitor
         // =============================== 新增逻辑结束 ===============================
     }
 
-        //载入树控件的展开折叠状态
-        std::vector<std::wstring> collapse_nodes;
-        ini.GetStringList(L"other", L"hardware_info_collapsed_nodes", collapse_nodes, std::vector<std::wstring>());
-        for (const auto& node_path : collapse_nodes)
-            MonitorGlobal::Instance()->treeCollapseNodes->Add(gcnew String(node_path.c_str()));
-    }
+    //载入树控件的展开折叠状态
+    std::vector<std::wstring> collapse_nodes;
+    ini.GetStringList(L"other", L"hardware_info_collapsed_nodes", collapse_nodes, std::vector<std::wstring>());
+    for (const auto& node_path : collapse_nodes)
+        MonitorGlobal::Instance()->treeCollapseNodes->Add(gcnew String(node_path.c_str()));
+}
 
     void CHardwareMonitor::SaveConfig()
     {
