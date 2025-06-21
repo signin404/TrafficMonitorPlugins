@@ -1,9 +1,5 @@
 #pragma once
-#include "../../include/ITMPlugin.h"
 #include "HardwareMonitorItem.h"
-#include <vector>
-#include <map>
-#include <string>
 
 // LibreHardwareMonitorLib.dll
 #using "LibreHardwareMonitorLib.dll"
