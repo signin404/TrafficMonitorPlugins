@@ -47,11 +47,11 @@ public:
 
     // Í¨¹ý ITrafficMonitor ¼Ì³Ð
     int GetAPIVersion() override;
-    const wchar_t* GetTrafficMonitorVersion() override;
+    const wchar_t* GetVersion() override;
     double GetMonitorData(ITrafficMonitor::MonitorItem item) override;
     void ShowNotifyMessage(const wchar_t* strMsg) override;
     unsigned short GetLanguageId() const override;
-    const wchar_t* GetConfigDir() const override;
+    const wchar_t* GetPluginConfigDir() const override;
     int GetDPI(ITrafficMonitor::DPIType type) const override;
     unsigned int GetThemeColor() const override;
 };

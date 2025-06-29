@@ -167,7 +167,7 @@ int CPluginTesterApp::GetAPIVersion()
     return 0;
 }
 
-const wchar_t* CPluginTesterApp::GetTrafficMonitorVersion()
+const wchar_t* CPluginTesterApp::GetVersion()
 {
     return L"1.86";
 }
@@ -186,7 +186,7 @@ unsigned short CPluginTesterApp::GetLanguageId() const
     return GetThreadUILanguage();
 }
 
-const wchar_t* CPluginTesterApp::GetConfigDir() const
+const wchar_t* CPluginTesterApp::GetPluginConfigDir() const
 {
     CPluginTesterDlg* pDlg = dynamic_cast<CPluginTesterDlg*>(m_pMainWnd);
     if (pDlg != nullptr)
