@@ -172,9 +172,14 @@ const wchar_t* CPluginTesterApp::GetVersion()
     return L"1.86";
 }
 
-double CPluginTesterApp::GetMonitorData(ITrafficMonitor::MonitorItem item)
+double CPluginTesterApp::GetMonitorValue(ITrafficMonitor::MonitorItem item)
 {
     return 0.0;
+}
+
+const wchar_t* CPluginTesterApp::GetMonitorValueString(MonitorItem item, int is_main_window)
+{
+    return L"";
 }
 
 void CPluginTesterApp::ShowNotifyMessage(const wchar_t* strMsg)

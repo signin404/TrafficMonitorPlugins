@@ -48,7 +48,8 @@ public:
     // Í¨¹ý ITrafficMonitor ¼Ì³Ð
     int GetAPIVersion() override;
     const wchar_t* GetVersion() override;
-    double GetMonitorData(ITrafficMonitor::MonitorItem item) override;
+    double GetMonitorValue(ITrafficMonitor::MonitorItem item) override;
+    const wchar_t* GetMonitorValueString(MonitorItem item, int is_main_window) override;
     void ShowNotifyMessage(const wchar_t* strMsg) override;
     unsigned short GetLanguageId() const override;
     const wchar_t* GetPluginConfigDir() const override;
