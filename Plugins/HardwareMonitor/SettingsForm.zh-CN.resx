@@ -275,7 +275,7 @@
     <value>183, 52</value>
   </data>
   <data name="specifyValueWidthCheck.Text" xml:space="preserve">
-    <value>指定数值宽度 (不含小数和单位)</value>
+    <value>固定数值宽度 (不含小数和单位)</value>
   </data>
   <data name="valueWidthEdit.Location" type="System.Drawing.Point, System.Drawing">
     <value>13, 118</value>

@@ -679,7 +679,7 @@
     <value>9</value>
   </data>
   <data name="specifyValueWidthCheck.Text" xml:space="preserve">
-    <value>Specify value width (widthout decimals and unit)</value>
+    <value>Fix value width (widthout decimals and unit)</value>
   </data>
   <data name="&gt;&gt;specifyValueWidthCheck.Name" xml:space="preserve">
     <value>specifyValueWidthCheck</value>
