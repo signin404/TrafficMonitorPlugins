@@ -74,6 +74,9 @@ public:
     void CheckFileChange();
 
 private:
+    static UINT ThreadCallback(LPVOID dwUser);
+
+private:
     unsigned __int64 m_file_last_modified{};    //打开文件的上次修改时间
 
 private:
@@ -85,4 +88,5 @@ private:
     std::wstring m_text_contents;
     CChapterParser m_chapter_parser{ m_text_contents };
     CBookmarkMgr m_bookmark_mgr;
+    bool m_is_thread_runing{};
 };

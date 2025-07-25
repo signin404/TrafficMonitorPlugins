@@ -5,6 +5,7 @@
 #include "TextReader.h"
 #include "OptionsDlg.h"
 #include "DataManager.h"
+#include "InputDlg.h"
 
 // COptionsDlg 对话框
 
@@ -37,6 +38,7 @@ void COptionsDlg::EnableControls()
 void COptionsDlg::DoDataExchange(CDataExchange* pDX)
 {
     CDialogEx::DoDataExchange(pDX);
+    DDX_Control(pDX, IDC_BROWSE_BUTTON, m_browse_btn);
 }
 
 
@@ -57,6 +59,10 @@ BOOL COptionsDlg::OnInitDialog()
 
     // TODO:  在此添加额外的初始化
     SetBackgroundColor(RGB(255, 255, 255));
+
+    m_browse_btn.SetFont(GetFont());
+    m_browse_btn.m_hMenu = CTextReader::Instance().GetMenu().GetSubMenu(1)->GetSafeHmenu();
+    m_browse_btn.m_bOSMenu = FALSE;
 
     m_file_path_ori = m_data.file_path;
 
@@ -96,18 +102,31 @@ BOOL COptionsDlg::OnInitDialog()
 
 void COptionsDlg::OnBnClickedBrowseButton()
 {
-    // TODO: 在此添加控件通知处理程序代码
-    CFileDialog fileDlg(TRUE, _T("txt"), NULL, 0, g_data.StringRes(IDS_FILTER), this);
-    if (fileDlg.DoModal() == IDOK)
+    //点击了浏览按钮
+    if (m_browse_btn.m_nMenuResult == 0)
     {
-        m_data.file_path = fileDlg.GetPathName().GetString();
-        SetDlgItemText(IDC_FILE_PATH_EDIT, m_data.file_path.c_str());
-        if (m_data.file_path != m_file_path_ori)
+        CFileDialog fileDlg(TRUE, _T("txt"), NULL, 0, g_data.StringRes(IDS_FILTER), this);
+        if (fileDlg.DoModal() == IDOK)
         {
-            SetDlgItemText(IDC_READ_POSITION_EDIT, _T("0"));    //打开新文件时，将阅读进度置为0
+            m_data.file_path = fileDlg.GetPathName().GetString();
+            SetDlgItemText(IDC_FILE_PATH_EDIT, m_data.file_path.c_str());
+            if (m_data.file_path != m_file_path_ori)
+            {
+                SetDlgItemText(IDC_READ_POSITION_EDIT, _T("0"));    //打开新文件时，将阅读进度置为0
+            }
         }
     }
-
+    //选择了“打开URL”
+    else if (m_browse_btn.m_nMenuResult == ID_OPEN_URL)
+    {
+        CInputDlg dlg(this);
+        dlg.SetTitle(g_data.StringRes(IDS_INPUT_URL_TITLE));
+        if (dlg.DoModal() == IDOK)
+        {
+            m_data.file_path = dlg.GetInputText();
+            SetDlgItemText(IDC_FILE_PATH_EDIT, m_data.file_path.c_str());
+        }
+    }
 }
 
 

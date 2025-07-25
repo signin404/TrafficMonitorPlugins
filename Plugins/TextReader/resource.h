@@ -1,6 +1,6 @@
-Ôªø//{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ ÁîüÊàêÁöÑÂåÖÂê´Êñá‰ª∂„ÄÇ
-// ‰æõ TextReader.rc ‰ΩøÁî®
+//{{NO_DEPENDENCIES}}
+// Microsoft Visual C++ …˙≥…µƒ∞¸∫¨Œƒº˛°£
+// π© TextReader.rc  π”√
 //
 #define IDD_OPTIONS_DIALOG              102
 #define IDS_PLUGIN_NAME                 103
@@ -36,6 +36,10 @@
 #define IDI_SETTINGS                    119
 #define IDS_MENU_CHAPTER                120
 #define IDS_MENU_BOOKMARK               121
+#define IDD_TEXT_INPUT_DIALOG           122
+#define IDS_OK                          122
+#define IDS_CANCEL                      123
+#define IDS_INPUT_URL_TITLE             124
 #define IDC_FILE_PATH_EDIT              1000
 #define IDC_BROWSE_BUTTON               1001
 #define IDC_READ_POSITION_EDIT          1002
@@ -63,6 +67,8 @@
 #define IDC_AUTO_RELOAD_CHECK           1019
 #define IDC_MOUSE_WHEEL_ENABLE_CHECK    1020
 #define IDC_WHEEL_READ_PAGE_CHECK       1021
+#define IDC_EDIT1                       1023
+#define IDC_SUBTITLE_STATIC             1024
 #define ID_PREVIOUS                     40001
 #define ID_1_40002                      40002
 #define ID_NEXT                         40003
@@ -75,14 +81,15 @@
 #define ID_STOP_AUTO_READ               40010
 #define ID_1_40011                      40011
 #define ID_HIDE                         40012
+#define ID_OPEN_URL                     40013
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        120
-#define _APS_NEXT_COMMAND_VALUE         40013
-#define _APS_NEXT_CONTROL_VALUE         1022
+#define _APS_NEXT_RESOURCE_VALUE        123
+#define _APS_NEXT_COMMAND_VALUE         40014
+#define _APS_NEXT_CONTROL_VALUE         1025
 #define _APS_NEXT_SYMED_VALUE           103
 #endif
 #endif

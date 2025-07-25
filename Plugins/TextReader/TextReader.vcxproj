@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|ARM64EC">
@@ -256,10 +256,12 @@
     <ClInclude Include="DataManager.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="HtmlToText.h" />
+    <ClInclude Include="InputDlg.h" />
     <ClInclude Include="OptionsContainerDlg.h" />
     <ClInclude Include="OptionsDlg.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="stdafx.h" />
     <ClInclude Include="TabCtrlEx.h" />
     <ClInclude Include="TextReader.h" />
     <ClInclude Include="TextReaderItem.h" />
@@ -272,6 +274,7 @@
     <ClCompile Include="Common.cpp" />
     <ClCompile Include="DataManager.cpp" />
     <ClCompile Include="HtmlToText.cpp" />
+    <ClCompile Include="InputDlg.cpp" />
     <ClCompile Include="OptionsContainerDlg.cpp" />
     <ClCompile Include="OptionsDlg.cpp" />
     <ClCompile Include="pch.cpp">

@@ -25,6 +25,7 @@ public:
     void* GetCommandIcon(int command_index) override;
     void OnPluginCommand(int command_index, void* hWnd, void* para) override;
     int IsCommandChecked(int command_index) override;
+    CMenu& GetMenu();
 
 private:
     int ShowOptionsDlg(CWnd* pParent, int cur_tab = 0);

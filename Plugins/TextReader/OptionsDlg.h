@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "DataManager.h"
 #include "afxdialogex.h"
+#include <afxmenubutton.h>
 
 // COptionsDlg 对话框
 
@@ -13,6 +14,7 @@ public:
     virtual ~COptionsDlg();
 
     SettingData m_data;
+    CMFCMenuButton m_browse_btn;
 
     // 对话框数据
 #ifdef AFX_DESIGN_TIME

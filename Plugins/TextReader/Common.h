@@ -19,4 +19,7 @@ public:
 
     //获取URL的内容
     static bool GetURL(const std::wstring& url, std::string& result, bool utf8 = false, const std::wstring& user_agent = std::wstring());
+
+    //判断一个字符串是否为url
+    static bool IsURL(const std::wstring& str);
 };

@@ -146,3 +146,8 @@ bool CCommon::GetURL(const std::wstring& url, std::string& result, bool utf8, co
     SAFE_DELETE(pSession);
     return succeed;
 }
+
+bool CCommon::IsURL(const std::wstring& str)
+{
+    return (str.substr(0, 7) == L"http://" || str.substr(0, 8) == L"https://" || str.substr(0, 6) == L"ftp://");
+}

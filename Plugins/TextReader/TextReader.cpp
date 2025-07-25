@@ -101,6 +101,8 @@ void CTextReader::OnExtenedInfo(ExtendedInfoIndex index, const wchar_t* data)
             g_data.CheckFileChange();
         });
 
+        LoadContextMenu();
+
         break;
     default:
         break;
@@ -110,7 +112,6 @@ void CTextReader::OnExtenedInfo(ExtendedInfoIndex index, const wchar_t* data)
 
 void CTextReader::ShowContextMenu(CWnd* pWnd)
 {
-    LoadContextMenu();
     CMenu* context_menu = m_menu.GetSubMenu(0);
 
     //设置菜单状态
@@ -285,6 +286,11 @@ int CTextReader::IsCommandChecked(int command_index)
     return 0;
 }
 
+CMenu& CTextReader::GetMenu()
+{
+    return m_menu;
+}
+
 int CTextReader::ShowOptionsDlg(CWnd* pParent, int cur_tab /*= 0*/)
 {
     AFX_MANAGE_STATE(AfxGetStaticModuleState());
@@ -320,7 +326,6 @@ void CTextReader::LoadContextMenu()
         AFX_MANAGE_STATE(AfxGetStaticModuleState());
         m_menu.LoadMenu(IDR_MENU1);
     }
-
 }
 
 ITMPlugin* TMPluginGetInstance()
