@@ -1,0 +1,40 @@
+# 工作流的名称，会显示在 Actions 页面
+name: Build HardwareMonitor Plugin
+
+# 触发工作流的事件
+on:
+  # 当有代码推送到 master 分支时自动触发
+  push:
+    branches: [ "master" ]
+  # 允许在 GitHub Actions 页面手动触发此工作流
+  workflow_dispatch:
+
+# 定义一系列要执行的任务
+jobs:
+  # 任务的唯一ID，这里我们叫它 "build"
+  build:
+    # 指定任务运行的操作系统环境，因为是VS项目，必须使用windows
+    runs-on: windows-latest
+
+    # 任务包含的一系列步骤
+    steps:
+      # 第一步：检出（下载）仓库代码
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+
+      # 第二步：设置 MSBuild 环境
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1.1
+
+      # 第三步：编译整个解决方案
+      - name: Build the entire solution
+        run: msbuild TrafficMonitorPlugins.sln /p:Configuration=Release /p:Platform=x64
+
+      # 第四步：上传编译产物 (已修正为正确的输出路径)
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          # 设置下载包的名称
+          name: HardwareMonitor-Plugin
+          # 根据项目配置，最终的 dll 文件输出在这里
+          path: Bin/x64/Release/HardwareMonitor.dll
