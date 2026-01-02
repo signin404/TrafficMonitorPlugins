@@ -56,7 +56,7 @@ UINT CWeather::ThreadCallback(LPVOID dwUser)
         {
             if (m_instance.ParseJsonData(weather_data))
             {
-                //解析成功时，将天气信息保存到Weather.json
+                //解析成功时 将天气信息保存到Weather.json
                 std::ofstream stream{ g_data.m_config_dir + L"Weather.json" };
                 stream << weather_data;
                 //保存历史天气数据
@@ -84,10 +84,35 @@ static void ParseWeatherInfo(WeatherInfo& weather_info, yyjson_val* forecast)
         //去掉前面的“高温”和“低温”
         weather_info.m_high = weather_info.m_high.substr(2);
         weather_info.m_low = weather_info.m_low.substr(2);
-        //去年低温后面的摄氏度符号
-        weather_info.m_low.pop_back();
-        utilities::StringHelper::StringNormalize(weather_info.m_high);
-        utilities::StringHelper::StringNormalize(weather_info.m_low);
+
+        // --- 修改开始：对高温进行四舍五入 ---
+        try {
+            // std::stod 会自动忽略数字后的非数字字符（如 ℃）
+            double dHigh = std::stod(weather_info.m_high);
+            // 四舍五入并转回字符串 保留 ℃ 后缀
+            weather_info.m_high = std::to_wstring((int)std::round(dHigh)) + L"℃";
+        }
+        catch (...) {
+            // 如果解析失败 回退到原有逻辑（仅去空格）
+            utilities::StringHelper::StringNormalize(weather_info.m_high);
+        }
+        // --- 修改结束 ---
+
+        // --- 修改开始：对低温进行四舍五入 ---
+        // 原代码逻辑是去掉低温后面的摄氏度符号
+        if (!weather_info.m_low.empty() && weather_info.m_low.back() == L'℃') {
+            weather_info.m_low.pop_back();
+        }
+
+        try {
+            double dLow = std::stod(weather_info.m_low);
+            // 四舍五入 低温不带 ℃ 后缀（保持原代码风格）
+            weather_info.m_low = std::to_wstring((int)std::round(dLow));
+        }
+        catch (...) {
+            utilities::StringHelper::StringNormalize(weather_info.m_low);
+        }
+        // --- 修改结束 ---
 
         //风向和风力
         std::wstring fx = utilities::JsonHelper::GetJsonWString(forecast, "fx");
@@ -96,7 +121,7 @@ static void ParseWeatherInfo(WeatherInfo& weather_info, yyjson_val* forecast)
     }
 }
 
-//获取一个日期的字符串。如果日期是今天、明天或后天，则返回“今天”、“明天”和“后天”的字符串，否则返回几月几日
+//获取一个日期的字符串如果日期是今天、明天或后天 则返回“今天”、“明天”和“后天”的字符串 否则返回几月几日
 static std::wstring GetDateString(CTime date)
 {
     date = CCommon::GetDateOnly(date);
@@ -159,7 +184,19 @@ bool CWeather::ParseJsonData(std::string json_data)
 
     //获取当前天气
     yyjson_val* data = yyjson_obj_get(root, "data");
-    g_data.m_weather_info[WEATHER_CURRENT].m_high = utilities::JsonHelper::GetJsonWString(data, "wendu") + L"℃";
+
+    // --- 修改开始：当前温度四舍五入 ---
+    std::wstring wendu_str = utilities::JsonHelper::GetJsonWString(data, "wendu");
+    try {
+        double dWendu = std::stod(wendu_str);
+        wendu_str = std::to_wstring((int)std::round(dWendu));
+    }
+    catch (...) {
+        // 解析失败则保持原样
+    }
+    g_data.m_weather_info[WEATHER_CURRENT].m_high = wendu_str + L"℃";
+    // --- 修改结束 ---
+
     g_data.m_weather_info[WEATHER_CURRENT].is_cur_weather = true;
 
     //空气质量
@@ -275,7 +312,7 @@ ITMPlugin::OptionReturn CWeather::ShowOptionsDialog(void* hParent)
         g_data.m_setting_data = dlg.m_data;
         if (city_changed)
         {
-            CWeather::Instance().SendWetherInfoQequest();   //城市改变后，重新发送天气请求
+            CWeather::Instance().SendWetherInfoQequest();   //城市改变后 重新发送天气请求
         }
         g_data.SaveConfig();
         return ITMPlugin::OR_OPTION_CHANGED;
@@ -362,7 +399,7 @@ void CWeather::ShowContextMenu(CWnd* pWnd)
                 g_data.m_setting_data = dlg.m_data;
                 if (city_changed)
                 {
-                    CWeather::Instance().SendWetherInfoQequest();   //城市改变后，重新发送天气请求
+                    CWeather::Instance().SendWetherInfoQequest();   //城市改变后 重新发送天气请求
                 }
             }
         }
