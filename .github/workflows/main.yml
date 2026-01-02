@@ -38,3 +38,4 @@ jobs:
           name: HardwareMonitor-Plugin
           # 根据项目配置，最终的 dll 文件输出在这里
           path: Bin/x64/Release/HardwareMonitor.dll
+          path: Bin/x64/Release/Weather.dll
