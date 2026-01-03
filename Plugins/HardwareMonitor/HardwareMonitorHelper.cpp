@@ -73,9 +73,9 @@ namespace HardwareMonitor
         case SensorType::Control: unitList->Add("%"); break;
         case SensorType::Level: unitList->Add("%"); break;
         case SensorType::Factor: unitList->Add(""); break;
-        case SensorType::Data: unitList->Add("GB"); unitList->Add("MB"); break;
-        case SensorType::SmallData: unitList->Add("MB"); unitList->Add("GB"); break;
-        case SensorType::Throughput: unitList->Add("KB/s"); unitList->Add("MB/s"); break;
+        case SensorType::Data: unitList->Add("G"); unitList->Add("MB"); break;
+        case SensorType::SmallData: unitList->Add("MB"); unitList->Add("G"); break;
+        case SensorType::Throughput: unitList->Add("Auto"); break; 
         case SensorType::TimeSpan: unitList->Add("s"); break;
         case SensorType::Energy: unitList->Add("mWh"); unitList->Add("Wh"); break;
         case SensorType::Noise: unitList->Add("dBA"); break;
@@ -182,16 +182,27 @@ namespace HardwareMonitor
             //数据（默认MB）
             else if (sensor->SensorType == SensorType::SmallData)
             {
-                if (unit->Equals("GB"))
+                if (unit->Equals("GB") || unit->Equals("G"))
                     value /= 1024.0f;
             }
-            //速率
+            // 速率 (Throughput) - 自动换算逻辑
             else if (sensor->SensorType == SensorType::Throughput)
             {
-                if (unit->Equals("MB/s")) //MB/s
-                    value /= (1024.0f * 1024.0f);
-                else                    //KB/s
+                // 原始 value 通常是 Bytes/s
+                // 1 MB = 1024 * 1024 = 1048576
+                
+                if (value >= 1048576.0f) 
+                {
+                    // 超过 1MB/s，换算为 M/s
+                    value /= 1048576.0f;
+                    unit = "M/s";  // 【关键】这里直接修改 unit 变量，覆盖传入的参数
+                }
+                else
+                {
+                    // 不足 1MB/s，换算为 K/s
                     value /= 1024.0f;
+                    unit = "K/s";  // 【关键】强制显示为 K/s
+                }
             }
             //电量
             else if (sensor->SensorType == SensorType::Energy)
