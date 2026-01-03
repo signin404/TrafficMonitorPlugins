@@ -182,13 +182,13 @@ namespace HardwareMonitor
             //数据（默认MB）
             else if (sensor->SensorType == SensorType::SmallData)
             {
-                if (unit->Equals("GB"))
+                if (unit->Equals("G"))
                     value /= 1024.0f;
             }
             //速率
             else if (sensor->SensorType == SensorType::Throughput)
             {
-                if (unit->Equals("MB/s")) //MB/s
+                if (unit->Equals("M/s")) //MB/s
                     value /= (1024.0f * 1024.0f);
                 else                    //KB/s
                     value /= 1024.0f;
