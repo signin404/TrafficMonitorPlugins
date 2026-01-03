@@ -75,7 +75,7 @@ namespace HardwareMonitor
         case SensorType::Factor: unitList->Add(""); break;
         case SensorType::Data: unitList->Add("G"); unitList->Add("MB"); break;
         case SensorType::SmallData: unitList->Add("MB"); unitList->Add("G"); break;
-        case SensorType::Throughput: unitList->Add("Auto"); break; 
+        case SensorType::Throughput: unitList->Add("M/s"); break;
         case SensorType::TimeSpan: unitList->Add("s"); break;
         case SensorType::Energy: unitList->Add("mWh"); unitList->Add("Wh"); break;
         case SensorType::Noise: unitList->Add("dBA"); break;
@@ -185,23 +185,29 @@ namespace HardwareMonitor
                 if (unit->Equals("GB") || unit->Equals("G"))
                     value /= 1024.0f;
             }
-            // 速率 (Throughput) - 自动换算逻辑
+            // 速率 (Throughput)
             else if (sensor->SensorType == SensorType::Throughput)
             {
-                // 原始 value 通常是 Bytes/s
-                // 1 MB = 1024 * 1024 = 1048576
-                
-                if (value >= 1048576.0f) 
+                // 1. 无论原始单位是什么，统一除以 1024*1024 换算成 M/s
+                // (假设原始数据是 Bytes/s，LibreHardwareMonitor通常如此)
+                value /= (1024.0f * 1024.0f);
+            
+                // 2. 强制将单位字符串改为 "M/s"
+                // 这样无论配置文件里存的是什么，界面最后都会显示 M/s
+                unit = "M/s";
+            
+                // 3. 根据数值大小动态设置小数位 (decimal_place)
+                if (value < 10.0f)
                 {
-                    // 超过 1MB/s，换算为 M/s
-                    value /= 1048576.0f;
-                    unit = "M/s";  // 【关键】这里直接修改 unit 变量，覆盖传入的参数
+                    decimal_place = 2; // 小于10M，显示2位小数 (例: 1.46 M/s)
+                }
+                else if (value < 100.0f)
+                {
+                    decimal_place = 1; // 10M - 99.9M，显示1位小数 (例: 10.4 M/s)
                 }
                 else
                 {
-                    // 不足 1MB/s，换算为 K/s
-                    value /= 1024.0f;
-                    unit = "K/s";  // 【关键】强制显示为 K/s
+                    decimal_place = 0; // 大于等于100M，不显示小数 (例: 100 M/s, 1021 M/s)
                 }
             }
             //电量
