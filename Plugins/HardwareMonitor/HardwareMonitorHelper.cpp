@@ -73,9 +73,9 @@ namespace HardwareMonitor
         case SensorType::Control: unitList->Add("%"); break;
         case SensorType::Level: unitList->Add("%"); break;
         case SensorType::Factor: unitList->Add(""); break;
-        case SensorType::Data: unitList->Add("GB"); unitList->Add("MB"); break;
-        case SensorType::SmallData: unitList->Add("MB"); unitList->Add("GB"); break;
-        case SensorType::Throughput: unitList->Add("KB/s"); unitList->Add("MB/s"); break;
+        case SensorType::Data: unitList->Add("G"); unitList->Add("MB"); break;
+        case SensorType::SmallData: unitList->Add("MB"); unitList->Add("G"); break;
+        case SensorType::Throughput: unitList->Add("KB/s"); unitList->Add("M/s"); break;
         case SensorType::TimeSpan: unitList->Add("s"); break;
         case SensorType::Energy: unitList->Add("mWh"); unitList->Add("Wh"); break;
         case SensorType::Noise: unitList->Add("dBA"); break;
@@ -182,13 +182,13 @@ namespace HardwareMonitor
             //数据（默认MB）
             else if (sensor->SensorType == SensorType::SmallData)
             {
-                if (unit->Equals("GB"))
+                if (unit->Equals("GB") || unit->Equals("G"))
                     value /= 1024.0f;
             }
             //速率
             else if (sensor->SensorType == SensorType::Throughput)
             {
-                if (unit->Equals("MB/s")) //MB/s
+                if (unit->Equals("MB/s") || unit->Equals("M/s")) //MB/s
                     value /= (1024.0f * 1024.0f);
                 else                    //KB/s
                     value /= 1024.0f;
