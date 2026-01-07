@@ -75,7 +75,7 @@ namespace HardwareMonitor
         case SensorType::Factor: unitList->Add(""); break;
         case SensorType::Data: unitList->Add("G"); unitList->Add("MB"); break;
         case SensorType::SmallData: unitList->Add("MB"); unitList->Add("G"); break;
-        case SensorType::Throughput: unitList->Add("KB/s"); unitList->Add("M/s"); break;
+        case SensorType::Throughput: unitList->Add("KB/s"); unitList->Add("MB/s"); break;
         case SensorType::TimeSpan: unitList->Add("s"); break;
         case SensorType::Energy: unitList->Add("mWh"); unitList->Add("Wh"); break;
         case SensorType::Noise: unitList->Add("dBA"); break;
@@ -95,7 +95,7 @@ namespace HardwareMonitor
     }
 
     //查找一个硬件下的传感器
-    //func为一个lambda表达式，原型为 bool(ISensor^)
+    //func为一个lambda表达式 原型为 bool(ISensor^)
     template<class Func>
     static ISensor^ FindSensorInHardware(IHardware^ hardware, Func func)
     {
@@ -122,7 +122,7 @@ namespace HardwareMonitor
         if (!MonitorGlobal::Instance()->sensorMap->TryGetValue(identifyer, sensor))
         {
             auto computer = MonitorGlobal::Instance()->computer;
-            gcroot<String^> _identifyer = identifyer;       //使用gcroot包装托管类指针，以便被lambda捕获
+            gcroot<String^> _identifyer = identifyer;       //使用gcroot包装托管类指针 以便被lambda捕获
             for each (IHardware^ hardware in computer->Hardware)
             {
                 sensor = FindSensorInHardware(hardware, [&](ISensor^ _sensor) {
@@ -188,10 +188,29 @@ namespace HardwareMonitor
             //速率
             else if (sensor->SensorType == SensorType::Throughput)
             {
-                if (unit->Equals("MB/s") || unit->Equals("M/s")) //MB/s
-                    value /= (1024.0f * 1024.0f);
-                else                    //KB/s
-                    value /= 1024.0f;
+                // 第一步：先统一换算成 M/s (原始数据通常是 Bytes/s)
+                float valueInM = value / (1024.0f * 1024.0f);
+
+                // 第二步：判断是否超过 1000 M/s
+                if (valueInM >= 1000.0f)
+                {
+                    // --- 超过1000 显示 G/s ---
+
+                    // 换算成 G (再除以1024)
+                    value = valueInM / 1024.0f;
+
+                    unit = "G/s";       // 单位改为 G/s
+                    decimal_place = 1;  // 保留1位小数 (例: 1.1 G/s)
+                }
+                else
+                {
+                    // --- 小于1000 显示 M/s ---
+
+                    value = valueInM;   // 保持 M/s 数值
+
+                    unit = "M/s";       // 单位强制为 M/s
+                    decimal_place = 0;  // 不显示小数 (例: 999 M/s)
+                }
             }
             //电量
             else if (sensor->SensorType == SensorType::Energy)
@@ -233,7 +252,7 @@ namespace HardwareMonitor
 
     String^ HardwareMonitorHelper::GetSensorIdentifyer(ISensor^ sensor)
     {
-        //不使用sensor->Identifier，因为sensor->Identifier代表的传感器并不总是固定的
+        //不使用sensor->Identifier 因为sensor->Identifier代表的传感器并不总是固定的
         //return sensor->Identifier->ToString();
 
         String^ path;
