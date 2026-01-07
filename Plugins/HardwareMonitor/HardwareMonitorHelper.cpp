@@ -200,7 +200,7 @@ namespace HardwareMonitor
                     value = valueInM / 1024.0f;
 
                     unit = "G/s";       // 单位改为 G/s
-                    decimal_place = 2;  // 保留1位小数 (例: 1.1 G/s)
+                    decimal_place = 2;  // 保留2位小数 (例: 1.12 G/s)
                 }
                 else
                 {
@@ -222,24 +222,8 @@ namespace HardwareMonitor
                 value = -value;
             if (sensor->SensorType == SensorType::Current && sensor->Name == L"Discharge Current")   //放电电流显示为负数
                 value = -value;
-
-            // ================== 100% 强制修正逻辑 ==================
-            bool isPercentType = (sensor->SensorType == SensorType::Load ||
-                sensor->SensorType == SensorType::Control ||
-                sensor->SensorType == SensorType::Level ||
-                sensor->SensorType == SensorType::Humidity);
-
-            // 如果是百分比且 >= 99.5 (四舍五入即100) 强制显示 "100"
-            if (isPercentType && value >= 99.5f)
-            {
-                sensor_str += "100";
-            }
-            else
-            {
-                // 原有格式化逻辑
-                String^ formatString = String::Format("F{0}", decimal_place);
-                sensor_str += value.ToString(formatString);
-            }
+            String^ formatString = String::Format("F{0}", decimal_place);
+            sensor_str += value.ToString(formatString);
         }
         else
         {
