@@ -223,21 +223,23 @@ namespace HardwareMonitor
             if (sensor->SensorType == SensorType::Current && sensor->Name == L"Discharge Current")   //放电电流显示为负数
                 value = -value;
 
-            // --- 新增的 100% 强制修正逻辑 ---
+            // ================== 100% 强制修正逻辑 ==================
             bool isPercentType = (sensor->SensorType == SensorType::Load ||
-            sensor->SensorType == SensorType::Control ||
-            sensor->SensorType == SensorType::Level ||
-            sensor->SensorType == SensorType::Humidity);
+                sensor->SensorType == SensorType::Control ||
+                sensor->SensorType == SensorType::Level ||
+                sensor->SensorType == SensorType::Humidity);
 
+            // 如果是百分比且 >= 99.5 (四舍五入即100) 强制显示 "100"
             if (isPercentType && value >= 99.5f)
             {
-            sensor_str += "100"; // 强制显示 100
+                sensor_str += "100";
             }
             else
             {
-            // 原有逻辑
-            String^ formatString = String::Format("F{0}", decimal_place);
-            sensor_str += value.ToString(formatString);
+                // 原有格式化逻辑
+                String^ formatString = String::Format("F{0}", decimal_place);
+                sensor_str += value.ToString(formatString);
+            }
         }
         else
         {
