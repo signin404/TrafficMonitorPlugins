@@ -200,7 +200,7 @@ namespace HardwareMonitor
                     value = valueInM / 1024.0f;
 
                     unit = "G/s";       // 单位改为 G/s
-                    decimal_place = 1;  // 保留1位小数 (例: 1.1 G/s)
+                    decimal_place = 2;  // 保留1位小数 (例: 1.1 G/s)
                 }
                 else
                 {
